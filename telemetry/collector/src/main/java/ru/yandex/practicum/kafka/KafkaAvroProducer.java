@@ -2,10 +2,11 @@ package ru.yandex.practicum.kafka;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.avro.specific.SpecificRecordBase;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 import ru.yandex.practicum.kafka.telemetry.event.SensorEventAvro;
@@ -16,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class KafkaAvroProducer {
 
-    private final KafkaTemplate<String, SpecificRecordBase> kafkaTemplate;
+    private final KafkaProducer<String, SpecificRecordBase> kafkaProducer;
 
     @Value("${kafka.sensor-events-topic}")
     private String sensorTopic;
@@ -25,8 +26,8 @@ public class KafkaAvroProducer {
     private String hubTopic;
 
     @Autowired
-    public KafkaAvroProducer(KafkaTemplate<String, SpecificRecordBase> kafkaTemplate) {
-        this.kafkaTemplate = kafkaTemplate;
+    public KafkaAvroProducer(KafkaProducer<String, SpecificRecordBase> kafkaProducer) {
+        this.kafkaProducer = kafkaProducer;
     }
 
     public void sendSensorEvent(SensorEventAvro sensorEvent) {
@@ -37,15 +38,15 @@ public class KafkaAvroProducer {
 
         log.info("Отправка Avro-сообщения в топик {}: Ключ='{}', Значение='{}'", sensorTopic, key, sensorEvent);
 
-        CompletableFuture<SendResult<String, SpecificRecordBase>> future = kafkaTemplate.send(sensorTopic, null, timeStamp, sensorEvent.getHubId(), sensorEvent);
-
-        future.whenComplete((result, ex) -> {
-            if (ex == null) {
+        ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(sensorTopic, null, timeStamp, key, sensorEvent);
+        CompletableFuture.runAsync(() -> {
+            try {
+                RecordMetadata metadata = kafkaProducer.send(record).get();
                 log.info("Сообщение успешно отправлено в топик '{}', раздел {}, смещение {}",
-                        result.getRecordMetadata().topic(),
-                        result.getRecordMetadata().partition(),
-                        result.getRecordMetadata().offset());
-            } else {
+                        metadata.topic(),
+                        metadata.partition(),
+                        metadata.offset());
+            } catch (Exception ex) {
                 log.error("Не удалось отправить сообщение: {}", ex.getMessage(), ex);
             }
         });
@@ -59,20 +60,18 @@ public class KafkaAvroProducer {
 
         log.info("Отправка Avro-сообщения в топик {}: Ключ='{}', Значение='{}'", hubTopic, key, hubEvent);
 
-        CompletableFuture<SendResult<String, SpecificRecordBase>> future = kafkaTemplate.send(hubTopic, null, timeStamp, hubEvent.getHubId(), hubEvent);
-
-        future.whenComplete((result, ex) -> {
-            if (ex == null) {
+        ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(hubTopic, null, timeStamp, key, hubEvent);
+        CompletableFuture.runAsync(() -> {
+            try {
+                RecordMetadata metadata = kafkaProducer.send(record).get();
                 log.info("Сообщение успешно отправлено в топик '{}', раздел {}, смещение {}",
-                        result.getRecordMetadata().topic(),
-                        result.getRecordMetadata().partition(),
-                        result.getRecordMetadata().offset());
-            } else {
+                        metadata.topic(),
+                        metadata.partition(),
+                        metadata.offset());
+            } catch (Exception ex) {
                 log.error("Не удалось отправить сообщение: {}", ex.getMessage(), ex);
             }
         });
     }
-
-
 }
 
