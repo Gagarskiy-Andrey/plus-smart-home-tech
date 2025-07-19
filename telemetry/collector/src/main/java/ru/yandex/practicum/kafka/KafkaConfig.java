@@ -18,7 +18,7 @@ public class KafkaConfig {
     private String bootstrapServers;
 
     @Bean
-    public KafkaProducer<String, SpecificRecordBase> producerFactory() {
+    public KafkaProducer<String, Object> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
