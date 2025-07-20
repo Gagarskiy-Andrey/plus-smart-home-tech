@@ -55,7 +55,7 @@ public class KafkaAvroProducer {
         long timeStamp = hubEvent.getTimestamp().toEpochMilli();
         String key = hubEvent.getHubId();
 
-        log.info("📤 Отправка HubEvent: ключ='{}', размер={} байт", key, eventBytes.length);
+        log.info("Отправка HubEvent: ключ='{}', размер={} байт", key, eventBytes.length);
 
         ProducerRecord<String, byte[]> record = new ProducerRecord<>(hubTopic, null, timeStamp, key, eventBytes);
 
