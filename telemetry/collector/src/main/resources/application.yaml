@@ -8,7 +8,7 @@ kafka:
   sensor-events-topic: telemetry.sensors.v1
   producer:
     key-serializer: org.apache.kafka.common.serialization.StringSerializer
-    value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+    value-serializer: org.apache.kafka.common.serialization.BaseArraySerializer
 
 grpc:
   server:

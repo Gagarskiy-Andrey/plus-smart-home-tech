@@ -17,9 +17,7 @@ import ru.yandex.practicum.kafka.telemetry.serializer.BaseAvroSerializer;
 @Service
 public class KafkaAvroProducer {
 
-    private final KafkaProducer<String, byte[]> kafkaProducer;
-
-    private final BaseAvroSerializer<GenericContainer> avroSerializer = new BaseAvroSerializer<>();
+    private final KafkaProducer<String, GenericContainer> kafkaProducer;
 
     @Value("${kafka.sensor-events-topic}")
     private String sensorTopic;
@@ -28,21 +26,21 @@ public class KafkaAvroProducer {
     private String hubTopic;
 
     @Autowired
-    public KafkaAvroProducer(KafkaProducer<String, byte[]> kafkaProducer) {
+    public KafkaAvroProducer(KafkaProducer<String, GenericContainer> kafkaProducer) {
         this.kafkaProducer = kafkaProducer;
     }
 
     public void sendSensorEvent(SensorEventAvro sensorEvent) {
-        byte[] eventBytes = avroSerializer.serialize(sensorTopic, sensorEvent);
         long timeStamp = sensorEvent.getTimestamp().toEpochMilli();
         String key = sensorEvent.getHubId();
 
-        log.info("📤 Отправка CLIMATE_SENSOR_EVENT: ключ='{}', размер={} байт", key, eventBytes.length);
+        ProducerRecord<String, GenericContainer> record =
+                new ProducerRecord<>(sensorTopic, null, timeStamp, key, sensorEvent);
 
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>(sensorTopic, null, timeStamp, key, eventBytes);
+        log.info("📤 Отправка CLIMATE_SENSOR_EVENT: ключ='{}'", key);
 
         try {
-            RecordMetadata metadata = kafkaProducer.send(record).get(); // синхронно
+            RecordMetadata metadata = kafkaProducer.send(record).get();
             log.info("Успешно отправлено в '{}': partition={}, offset={}",
                     metadata.topic(), metadata.partition(), metadata.offset());
         } catch (Exception ex) {
@@ -51,13 +49,13 @@ public class KafkaAvroProducer {
     }
 
     public void sendHubEvent(HubEventAvro hubEvent) {
-        byte[] eventBytes = avroSerializer.serialize(hubTopic, hubEvent);
         long timeStamp = hubEvent.getTimestamp().toEpochMilli();
         String key = hubEvent.getHubId();
 
-        log.info("Отправка HubEvent: ключ='{}', размер={} байт", key, eventBytes.length);
+        ProducerRecord<String, GenericContainer> record =
+                new ProducerRecord<>(hubTopic, null, timeStamp, key, hubEvent);
 
-        ProducerRecord<String, byte[]> record = new ProducerRecord<>(hubTopic, null, timeStamp, key, eventBytes);
+        log.info("📤 Отправка HubEvent: ключ='{}'", key);
 
         try {
             RecordMetadata metadata = kafkaProducer.send(record).get();

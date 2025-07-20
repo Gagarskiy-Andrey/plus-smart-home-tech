@@ -1,5 +1,6 @@
 package ru.yandex.practicum.kafka;
 
+import org.apache.avro.generic.GenericContainer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -18,7 +19,7 @@ public class KafkaConfig {
     private String bootstrapServers;
 
     @Bean
-    public KafkaProducer<String, byte[]> producerFactory() {
+    public KafkaProducer<String, GenericContainer> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
