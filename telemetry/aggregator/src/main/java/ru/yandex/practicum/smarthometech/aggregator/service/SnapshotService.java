@@ -7,6 +7,6 @@ import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 public interface SnapshotService {
 
 
-    public Optional<SensorsSnapshotAvro> updateState(SensorEventAvro event);
+    Optional<SensorsSnapshotAvro> updateState(SensorEventAvro event);
 
 }
