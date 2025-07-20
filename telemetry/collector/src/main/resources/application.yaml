@@ -1,15 +1,18 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: collector
+
+kafka:
+  bootstrap-servers: localhost:9092
+  hub-events-topic: telemetry.hubs.v1
+  sensor-events-topic: telemetry.sensors.v1
+  producer:
+    key-serializer: org.apache.kafka.common.serialization.StringSerializer
+    value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+
+grpc:
   server:
-    port: 8080
-
-  spring:
-    application:
-      name: collector
-
-  kafka:
-    bootstrap-servers: localhost:9092
-    hub-events-topic: telemetry.hubs.v1
-    sensor-events-topic: telemetry.sensors.v1
-
-    grpc:
-      server:
-        port: 9090
+    port: 9090
