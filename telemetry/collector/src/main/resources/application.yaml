@@ -1,15 +1,20 @@
 spring:
   application:
     name: collector
+  config:
+    import: "configserver:"
+  cloud:
+    config:
+      discovery:
+        enabled: true
+        serviceId: config-server
+      fail-fast: true
+      retry:
+        max-attempts: 10
+        initial-interval: 1000
+        useRandomPolicy: true
 
-kafka:
-  bootstrap-servers: localhost:9092
-  hub-events-topic: telemetry.hubs.v1
-  sensor-events-topic: telemetry.sensors.v1
-  producer:
-    key-serializer: org.apache.kafka.common.serialization.StringSerializer
-    value-serializer: org.apache.kafka.common.serialization.BaseArraySerializer
-
-grpc:
-  server:
-    port: 59091
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka/}

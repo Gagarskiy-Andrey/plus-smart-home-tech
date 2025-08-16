@@ -37,7 +37,7 @@ public class KafkaAvroProducer {
         ProducerRecord<String, GenericContainer> record =
                 new ProducerRecord<>(sensorTopic, null, timeStamp, key, sensorEvent);
 
-        log.info("📤 Отправка CLIMATE_SENSOR_EVENT: ключ='{}'", key);
+        log.info("Отправка CLIMATE_SENSOR_EVENT: ключ='{}'", key);
 
         try {
             RecordMetadata metadata = kafkaProducer.send(record).get();
@@ -55,7 +55,7 @@ public class KafkaAvroProducer {
         ProducerRecord<String, GenericContainer> record =
                 new ProducerRecord<>(hubTopic, null, timeStamp, key, hubEvent);
 
-        log.info("📤 Отправка HubEvent: ключ='{}'", key);
+        log.info("Отправка HubEvent: ключ='{}'", key);
 
         try {
             RecordMetadata metadata = kafkaProducer.send(record).get();
