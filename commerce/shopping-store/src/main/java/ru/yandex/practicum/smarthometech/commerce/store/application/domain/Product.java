@@ -28,13 +28,13 @@ public class Product {
     private UUID productId;
 
     @Column(name = "name", nullable = false)
-    String productName;
+    private String productName;
 
     @Column(name = "description", columnDefinition = "TEXT")
-    String description;
+    private String description;
 
     @Column(name = "image_src")
-    String imageSrc;
+    private String imageSrc;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "quantity_state", nullable = false)
@@ -49,7 +49,7 @@ public class Product {
     private ProductCategory productCategory;
 
     @Column(name = "price", nullable = false)
-    BigDecimal price;
+    private BigDecimal price;
 
     @Override
     public boolean equals(Object o) {
